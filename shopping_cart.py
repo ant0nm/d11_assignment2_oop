@@ -1,5 +1,6 @@
 # link up the two classes
 from product import Product
+from tax import TaxManager
 
 class ShoppingCart:
 
@@ -10,51 +11,58 @@ class ShoppingCart:
 
     def __str__(self):
         str_list = ""
-        for index, product in enumerate(self.products):
-            if index == 0:
-                str_list += "Your Cart:\n* {}".format(product.name)
-            else:
-                str_list += "\n* {}".format(product.name)
+        str_list += "Your Cart:\n"
+        for product, num in self.products.items():
+            str_list += "* {}: {}\n".format(product.name, num)
         return str_list
 
     def add(self, product):
-        self.products.append(product)
+        if product in self.products:
+            self.products[product] += 1
+        else:
+            self.products[product] = 1
 
     def remove(self, product):
-        self.products.remove(product)
+        if product in self.products:
+            self.products[product] -= 1
+        else:
+            self.products.pop(product)
 
     def total_price_before_tax(self):
         total_before_tax = 0
-        for product in self.products:
-            total_before_tax += product.base_price
+        for product, num in self.products.items():
+            total_before_tax += product.base_price * num
         return total_before_tax
 
     def total_price_after_tax(self):
         total_after_tax = 0
-        for product in self.products:
-            total_after_tax += product.total_price()
+        for product, num in self.products.items():
+            total_after_tax += product.total_price() * num
         return total_after_tax
 
     def most_expensive_product(self):
         max_price = 0
         max_product = None
-        for product in self.products:
+        for product in self.products.keys():
             if product.total_price() > max_price:
                 max_price = product.total_price()
                 max_product = product
         return max_product
 
+# create a tax manager
+taxes = TaxManager({"standard": 0.13, "tax exempt": 0.05, "imported": 0.18})
+
 # instantiating a shopping cart, initializing and printing it
-eggs = Product("eggs", 3, 0.10) # total price = 3.3
-milk = Product("milk", 2, 0.13) # total price = 2.26
-bacon = Product("bacon", 5, 0.05) # total price = 5.25
-product_list = [eggs, milk, bacon]
+eggs = Product("eggs", 3, taxes.getRate("standard")) # total price = 3.3
+milk = Product("milk", 2, taxes.getRate("standard")) # total price = 2.26
+bacon = Product("bacon", 5, taxes.getRate("tax exempt")) # total price = 5.25
+product_list = {eggs: 1, milk: 2, bacon: 3}
 cart = ShoppingCart(product_list)
 print(cart)
 
 # adding 2 more products
-butter = Product("butter", 1, 0.13) # total price = 1.13
-tuna = Product("tuna", 9, 0.13) # total price = 10.17
+butter = Product("butter", 1, taxes.getRate("standard")) # total price = 1.13
+tuna = Product("tuna", 9, taxes.getRate("imported")) # total price = 10.17
 cart.add(butter)
 cart.add(tuna)
 print()
