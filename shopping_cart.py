@@ -35,6 +35,15 @@ class ShoppingCart:
             total_after_tax += product.total_price()
         return total_after_tax
 
+    def most_expensive_product(self):
+        max_price = 0
+        max_product = None
+        for product in self.products:
+            if product.total_price() > max_price:
+                max_price = product.total_price()
+                max_product = product
+        return max_product
+
 # instantiating a shopping cart, initializing and printing it
 eggs = Product("eggs", 3, 0.10) # total price = 3.3
 milk = Product("milk", 2, 0.13) # total price = 2.26
@@ -64,3 +73,9 @@ print("The total price of your cart BEFORE TAX is: {}".format(cart.total_price_b
 # expecting $19.85
 print()
 print("The total price of your cart AFTER TAX is: {}".format(cart.total_price_after_tax()))
+
+# get the most expensive product in the cart
+max_price_product = cart.most_expensive_product()
+print()
+print("Most expensive product in the cart:")
+print(max_price_product)
